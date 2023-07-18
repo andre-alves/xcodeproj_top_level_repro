@@ -1,2 +1,5 @@
-# xcodeproj_indexing_error_repro
-Repro project showing errors in background indexer
+# xcodeproj_top_level_repro
+
+How to reproduce:
+
+`bazelisk run //BazelSample:BazelSampleXcodeProj`

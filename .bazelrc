@@ -1,0 +1,31 @@
+####################################
+#### COMMON
+####################################
+
+### [Xcode]
+common --repo_env=DEVELOPER_DIR
+
+### [Build]
+
+# Setup toolchain from apple_support
+# https://github.com/bazelbuild/apple_support#toolchain-setup
+# https://bazelbuild.slack.com/archives/CD3QY5C2X/p1677750260906449
+build --enable_platform_specific_config
+build:macos --apple_crosstool_top=@local_config_apple_cc//:toolchain
+build:macos --crosstool_top=@local_config_apple_cc//:toolchain
+build:macos --host_crosstool_top=@local_config_apple_cc//:toolchain
+
+build --incompatible_strict_action_env
+
+####################################
+#### USER
+####################################
+
+# Load any settings specific to the current user.
+# .bazelrc.user should appear in .gitignore so that settings are not shared with team members
+# This needs to be last statement in this
+# config, as the user configuration should be able to overwrite flags from this file.
+# See https://docs.bazel.build/versions/master/best-practices.html#bazelrc
+# (Note that we use .bazelrc.user so the file appears next to .bazelrc in directory listing,
+# rather than user.bazelrc as suggested in the Bazel docs)
+try-import %workspace%/.bazelrc.user

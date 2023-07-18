@@ -1,0 +1,203 @@
+load("@build_bazel_rules_apple//apple:ios.bzl", "ios_application")
+load("@build_bazel_rules_apple//apple:versioning.bzl", "apple_bundle_version")
+load("@rules_xcodeproj//xcodeproj:defs.bzl", "xcodeproj", "xcode_schemes")
+load("@build_bazel_rules_swift//swift:swift.bzl", "swift_library")
+
+##############################
+########## App
+
+xcodeproj(
+    name = "BazelSampleXcodeProj",
+    bazel_env = {"PATH": "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"},
+    build_mode = "bazel",
+    focused_targets = [
+        ":BazelSampleApp",
+        ":BazelSample",
+    ],
+    project_name = "BazelSample",
+    schemes = [
+        xcode_schemes.scheme(
+            name = "CustomScheme",
+            build_action = xcode_schemes.build_action(
+                targets = [
+                    ":BazelSample",
+                ],
+            ),
+            launch_action = xcode_schemes.launch_action(
+                ":BazelSampleApp",
+            ),
+        ),
+    ],
+    top_level_targets = [":BazelSampleApp"],
+)
+
+ios_application(
+    name = "BazelSampleApp",
+    app_icons = glob(["Main/Resources/Assets/AppIcon.xcassets/**/*"]),
+    bundle_id = "com.test.bazelsample",
+    bundle_name = "BazelSample",
+    families = [
+        "iphone",
+        "ipad",
+    ],
+    infoplists = ["Main/Resources/Info.plist"],
+    minimum_os_version = "14.0",
+    version = ":BazelSampleVersion",
+    visibility = ["//visibility:public"],
+    deps = [":BazelSample"],
+)
+
+apple_bundle_version(
+    name = "BazelSampleVersion",
+    build_version = "1.2.3.4",
+    short_version_string = "1.2.3",
+    tags = ["manual"],
+)
+
+swift_library(
+    name = "BazelSample",
+    srcs = glob(["Main/Sources/**/*.swift"]),
+    module_name = "BazelSample",
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":CocktailDB",
+        ":DrinkData",
+        ":DrinkDetails",
+        ":DrinkDiscovery",
+        ":DrinkDomain",
+        ":Networking",
+    ],
+)
+
+# ##############################
+# ########## Drink
+
+swift_library(
+    name = "DrinkDomain",
+    srcs = glob(["DrinkDomain/Sources/**/*.swift"]),
+    module_name = "DrinkDomain",
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+)
+
+swift_library(
+    name = "DrinkData",
+    srcs = glob(["DrinkData/Sources/**/*.swift"]),
+    module_name = "DrinkData",
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":CocktailDBInterface",
+        ":DrinkDomain",
+    ],
+)
+
+##############################
+########## Drink Discovery
+
+swift_library(
+    name = "DrinkDiscoveryInterface",
+    srcs = glob(["DrinkDiscoveryInterface/Sources/**/*.swift"]),
+    module_name = "DrinkDiscoveryInterface",
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":DrinkDomain",
+    ],
+)
+
+swift_library(
+    name = "DrinkDiscovery",
+    srcs = glob(["DrinkDiscovery/Sources/**/*.swift"]),
+    module_name = "DrinkDiscovery",
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":CommonUI",
+        ":DrinkDetailsInterface",
+        ":DrinkDiscoveryInterface",
+    ],
+)
+
+##############################
+########## Drink Details
+
+swift_library(
+    name = "DrinkDetailsInterface",
+    srcs = glob(["DrinkDetailsInterface/Sources/**/*.swift"]),
+    module_name = "DrinkDetailsInterface",
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":DrinkDomain",
+    ],
+)
+
+swift_library(
+    name = "DrinkDetails",
+    srcs = glob(["DrinkDetails/Sources/**/*.swift"]),
+    module_name = "DrinkDetails",
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":CommonUI",
+        ":DrinkDetailsInterface",
+    ],
+)
+
+##############################
+########## Network
+
+swift_library(
+    name = "NetworkInterface",
+    srcs = glob(["NetworkInterface/Sources/**/*.swift"]),
+    module_name = "NetworkInterface",
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+)
+
+swift_library(
+    name = "Networking",
+    srcs = glob(["Networking/Sources/**/*.swift"]),
+    module_name = "Networking",
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":NetworkInterface",
+    ],
+)
+
+##############################
+########## CocktailDB
+
+swift_library(
+    name = "CocktailDBInterface",
+    srcs = glob(["CocktailDBInterface/Sources/**/*.swift"]),
+    module_name = "CocktailDBInterface",
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+)
+
+swift_library(
+    name = "CocktailDB",
+    srcs = glob(["CocktailDB/Sources/**/*.swift"]),
+    module_name = "CocktailDB",
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":CocktailDBInterface",
+        ":NetworkInterface",
+    ],
+)
+
+##############################
+########## CommonUI
+
+swift_library(
+    name = "CommonUI",
+    srcs = glob(["CommonUI/Sources/**/*.swift"]),
+    module_name = "CommonUI",
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+)
